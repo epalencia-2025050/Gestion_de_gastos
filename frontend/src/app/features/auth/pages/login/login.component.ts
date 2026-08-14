@@ -1,0 +1,61 @@
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './login.component.html',
+})
+export class LoginComponent {
+  // Inyección moderna de dependencias con inject()
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  // Signals para el estado reactivo del componente
+  readonly loading = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+
+  // Ahora 'this.fb' ya está inicializado y listo para usarse aquí
+  readonly form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
+
+  get email() {
+    return this.form.controls.email;
+  }
+
+  get password() {
+    return this.form.controls.password;
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.loading.set(true);
+    this.errorMessage.set(null);
+
+    const { email, password } = this.form.getRawValue();
+
+    this.authService.login({ email: email!, password: password! }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.errorMessage.set(
+          err?.error?.message ?? 'No se pudo iniciar sesión. Intenta nuevamente.',
+        );
+      },
+    });
+  }
+}
