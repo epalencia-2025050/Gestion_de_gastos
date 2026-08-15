@@ -1,0 +1,48 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+    <h1 class="text-lg font-semibold text-gray-900">Gestion de Ingresos</h1>
+    <div class="flex items-center gap-4">
+      @if (authService.currentUser(); as user) {
+        <span class="text-sm text-gray-600">
+          Hola, {{ user.nombre }}
+          <span
+            class="ml-1 px-2 py-0.5 rounded-full text-xs font-medium"
+            [class.bg-primary-100]="user.rol === 'admin'"
+            [class.text-primary-700]="user.rol === 'admin'"
+            [class.bg-gray-100]="user.rol === 'user'"
+            [class.text-gray-600]="user.rol === 'user'"
+          >
+            {{ user.rol }}
+          </span>
+        </span>
+      }
+
+      @if (authService.isAdmin()) {
+        <a routerLink="/admin/users" class="text-sm text-primary-600 hover:underline">
+          Administrar usuarios
+        </a>
+      }
+
+      <button
+        (click)="onLogout()"
+        class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors"
+      >
+        Cerrar sesion
+      </button>
+    </div>
+  </nav>
+
+  <main class="max-w-4xl mx-auto px-6 py-10">
+    <div class="bg-white rounded-2xl shadow-sm p-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-2">Bienvenido al Dashboard</h2>
+      <p class="text-gray-500">
+        Esta es una ruta protegida por <code>authGuard</code>.
+        @if (authService.isAdmin()) {
+          Como administrador, tambien puedes ver la seccion de <em>Administrar usuarios</em>.
+        } @else {
+          A partir de aqui puedes empezar a construir los modulos de ingresos y reportes.
+        }
+      </p>
+    </div>
+  </main>
+</div>
